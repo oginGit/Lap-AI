@@ -4,8 +4,7 @@
 import { useState, useRef } from 'react';
 import { Shield, Lock, User, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import laptopLogo from '../assets/laptop_logo.png';
-import laptopImg from '../assets/laptop.png';
+import lapguardLogo from '../assets/lapguard_logo.png';
 
 export default function LoginPage({ onSwitchToSignup }) {
   const { login, googleLogin } = useAuth();
@@ -66,7 +65,7 @@ export default function LoginPage({ onSwitchToSignup }) {
           {loading && (
             <div className="auth-loading-overlay">
               <div className="auth-loading-spinner">
-                <img src={laptopLogo} alt="Loading" className="loading-logo-anim" />
+                <img src={lapguardLogo} alt="Loading" className="loading-logo-anim" style={{ borderRadius: '12px' }} />
                 <div className="spinner-ring"></div>
               </div>
             </div>
@@ -85,7 +84,7 @@ export default function LoginPage({ onSwitchToSignup }) {
                 justifyContent: 'center',
                 boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
               }}>
-                <img src={laptopImg} alt="Logo" style={{ width: '50px', height: '50px', filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
+                <img src={lapguardLogo} alt="Logo" style={{ width: '55px', height: '55px', borderRadius: '14px', filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
               </div>
               <div style={{ textAlign: 'center' }}>
                 <h1 style={{ 

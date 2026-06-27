@@ -3,7 +3,7 @@
  * Redesigned to match the reference image.
  */
 import { useState } from 'react';
-import laptopImg from '../assets/laptop.png';
+import lapguardLogo from '../assets/lapguard_logo.png';
 import {
   LayoutDashboard,
   Cpu,
@@ -41,7 +41,7 @@ const Sidebar = ({ activePage, setActivePage, user, onLogout }) => {
         gap: '4px',
         textAlign: 'center'
       }}>
-        <img src={laptopImg} alt="Logo" style={{ width: '50px', height: '50px', marginTop: 20, filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
+        <img src={lapguardLogo} alt="Logo" style={{ width: '55px', height: '55px', marginTop: 10, borderRadius: '12px', filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
         <div>
           <h1 style={{ 
             fontSize: '18px', 
