@@ -18,6 +18,7 @@ import SettingsPage from './components/SettingsPage';
 import { saveReport } from './utils/api';
 import { Shield, Monitor, Activity } from 'lucide-react';
 import './index.css';
+import laptopLogoWhite from './assets/laptop_logo_white.png';
 
 // ─── Tiny in-app toast notification system ───────────────────────────────────
 let _addToast = null;
@@ -184,7 +185,7 @@ const App = () => {
         <div className="auth-loading-content fade-in">
           <div className="auth-loading-logo">
             <img 
-              src="/src/assets/laptop_logo_white.png" 
+              src={laptopLogoWhite} 
               alt="Logo" 
               className="loading-logo-anim-lg"
             />

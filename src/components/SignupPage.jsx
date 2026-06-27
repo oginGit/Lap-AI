@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Shield, Lock, User, Mail, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import laptopImg from '../assets/laptop.png';
 
 export default function SignupPage({ onSwitchToLogin }) {
   const { signup, googleLogin } = useAuth();
@@ -94,7 +95,7 @@ export default function SignupPage({ onSwitchToLogin }) {
                 justifyContent: 'center',
                 boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
               }}>
-                <img src="/src/assets/laptop.png" alt="Logo" style={{ width: '50px', height: '50px', filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
+                <img src={laptopImg} alt="Logo" style={{ width: '50px', height: '50px', filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
               </div>
               <div style={{ textAlign: 'center' }}>
                 <h1 style={{ 

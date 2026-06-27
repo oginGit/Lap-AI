@@ -3,6 +3,7 @@
  * Redesigned to match the reference image.
  */
 import { useState } from 'react';
+import laptopImg from '../assets/laptop.png';
 import {
   LayoutDashboard,
   Cpu,
@@ -40,7 +41,7 @@ const Sidebar = ({ activePage, setActivePage, user, onLogout }) => {
         gap: '4px',
         textAlign: 'center'
       }}>
-        <img src="/src/assets/laptop.png" alt="Logo" style={{ width: '50px', height: '50px', margin_top:20,filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
+        <img src={laptopImg} alt="Logo" style={{ width: '50px', height: '50px', marginTop: 20, filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))' }} />
         <div>
           <h1 style={{ 
             fontSize: '18px', 
