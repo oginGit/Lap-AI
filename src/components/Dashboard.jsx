@@ -282,7 +282,74 @@ const Dashboard = ({ hardware, setHardware, llmAnalysis, setLlmAnalysis, toast, 
         </div>
       </div>
 
-
+      {!backendOnline && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.05)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '16px',
+          padding: '24px',
+          marginBottom: '30px',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-red)', flexShrink: 0 }}>
+              <WifiOff size={20} />
+            </div>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#fff' }}>Local Monitoring Agent Offline</h4>
+              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>
+                This web application reads real-time hardware telemetry directly from your Windows machine using a secure local agent.
+              </p>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '4px', alignItems: 'center' }}>
+            <a 
+              href="https://github.com/oginGit/Lap-AI/releases/latest/download/LapGuardAgent.exe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              style={{
+                background: 'var(--accent-purple)',
+                borderColor: 'var(--accent-purple)',
+                boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#fff'
+              }}
+            >
+              <Cpu size={16} /> Download Local Agent (EXE)
+            </a>
+            
+            <button 
+              className="btn btn-secondary"
+              onClick={() => handleDetect(true)}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: '600'
+              }}
+            >
+              <RefreshCw size={14} style={{ marginRight: '6px' }} /> Retry Connection
+            </button>
+          </div>
+          
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', fontSize: '11px', color: 'var(--text-muted)' }}>
+            <strong>How to setup:</strong> 1. Click download to get <code>LapGuardAgent.exe</code>. 2. Run the file on your Windows machine to start the local service. 3. Refresh this page or click "Retry Connection".
+          </div>
+        </div>
+      )}
 
       {/* Metric Cards Grid - 4 Columns */}
       <div className="metrics-grid">

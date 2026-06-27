@@ -68,10 +68,10 @@ const DetectPage = ({ hardware, setHardware, toast }) => {
       toast?.success('Hardware detection complete — real data loaded!');
     } catch (e) {
       const msg = e.message || 'Unknown error';
-      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('timed out')) {
-        toast?.error('Cannot connect to backend. Please start the Python server: cd backend && python app.py');
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('timed out') || msg.includes('Agent')) {
+        toast?.error('Cannot connect to local agent. Please download and run LapGuardAgent.exe.');
       } else if (msg.includes('500') || msg.includes('505')) {
-        toast?.error('Backend error — the hardware monitor service encountered an issue. Restart the backend server.');
+        toast?.error('Agent error — the local hardware monitor service encountered an issue. Please restart the LapGuardAgent.exe.');
       } else {
         toast?.error(`Detection failed: ${msg}`);
       }
