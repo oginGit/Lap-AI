@@ -548,10 +548,15 @@ def _get_all_keys():
     }
     
     try:
-        # Get path relative to this app.py file
-        backend_dir = os.path.dirname(os.path.abspath(__file__))
-        root_dir = os.path.dirname(backend_dir)
-        env_path = os.path.join(root_dir, "auth-backend", ".env")
+        # Determine base directory
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        local_env = os.path.join(base_dir, ".env")
+        parent_env = os.path.join(os.path.dirname(base_dir), "auth-backend", ".env")
+        env_path = local_env if os.path.exists(local_env) else parent_env
         
         if os.path.exists(env_path):
             with open(env_path, 'r', encoding='utf-8') as f:

@@ -5,9 +5,10 @@
  * Also handles authenticated scan history via the auth backend.
  */
 
-// Use relative paths — Vite proxy routes to the correct backend
+// Use environment variables or relative paths fallback
 const API_BASE = '';
-const AUTH_API = '/api/auth';
+const AUTH_API = import.meta.env.VITE_AUTH_API_URL || '/api/auth';
+const AGENT_API = import.meta.env.VITE_AGENT_URL || 'http://localhost:5050';
 
 /**
  * Get the current auth token
@@ -51,6 +52,40 @@ async function apiFetch(endpoint, options = {}) {
 }
 
 /**
+ * Agent fetch wrapper for local Windows monitoring service
+ */
+async function agentFetch(endpoint, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const res = await fetch(`${AGENT_API}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `Agent error: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out — is the local LapGuard Agent running?');
+    }
+    throw err;
+  }
+}
+
+/**
  * Authenticated fetch wrapper — includes JWT token
  */
 async function authFetch(endpoint, options = {}) {
@@ -69,7 +104,7 @@ async function authFetch(endpoint, options = {}) {
  */
 export async function checkBackendHealth() {
   try {
-    const data = await apiFetch('/api/health');
+    const data = await agentFetch('/api/health');
     return { online: true, ...data };
   } catch {
     return { online: false };
@@ -81,7 +116,7 @@ export async function checkBackendHealth() {
  * GET /api/hardware/status
  */
 export async function fetchHardwareStatus() {
-  return apiFetch('/api/hardware/status');
+  return agentFetch('/api/hardware/status');
 }
 
 /**
@@ -89,7 +124,7 @@ export async function fetchHardwareStatus() {
  * POST /api/llm/analyze
  */
 export async function sendToLLM(hardware, userResponses) {
-  return apiFetch('/api/llm/analyze', {
+  return agentFetch('/api/llm/analyze', {
     method: 'POST',
     body: JSON.stringify({ hardware, userResponses }),
   });

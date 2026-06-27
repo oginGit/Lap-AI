@@ -8,8 +8,8 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const AuthContext = createContext(null);
 
-// Use relative path — Vite proxy handles routing to the auth backend
-const AUTH_API = '/api/auth';
+// Use environment variable in production, fallback to relative path for dev proxy
+const AUTH_API = import.meta.env.VITE_AUTH_API_URL || '/api/auth';
 
 /**
  * Safely parse JSON from a fetch Response.
