@@ -7,7 +7,11 @@
 
 // Use environment variables or relative paths fallback
 const API_BASE = '';
-const AUTH_API = import.meta.env.VITE_AUTH_API_URL || '/api/auth';
+let baseAuthApi = import.meta.env.VITE_AUTH_API_URL || '/api/auth';
+if (baseAuthApi.startsWith('http') && !baseAuthApi.endsWith('/api/auth') && !baseAuthApi.endsWith('/api/auth/')) {
+  baseAuthApi = baseAuthApi.replace(/\/$/, '') + '/api/auth';
+}
+const AUTH_API = baseAuthApi;
 const AGENT_API = import.meta.env.VITE_AGENT_URL || 'http://localhost:5050';
 
 /**
