@@ -43,12 +43,6 @@ const Dashboard = ({ hardware, setHardware, llmAnalysis, setLlmAnalysis, toast, 
   const [backendOnline, setBackendOnline] = useState(null);
 
 
-  // Check backend status on mount
-  useEffect(() => {
-    checkBackendHealth().then(r => setBackendOnline(r.online));
-  }, []);
-
-
   const handleDetect = async (silent = false) => {
     setDetecting(true);
     try {
@@ -82,6 +76,33 @@ const Dashboard = ({ hardware, setHardware, llmAnalysis, setLlmAnalysis, toast, 
       setDetecting(false);
     }
   };
+
+  // Poll backend health in the background to automatically hide the alert
+  useEffect(() => {
+    let active = true;
+    
+    const check = () => {
+      checkBackendHealth().then(r => {
+        if (!active) return;
+        
+        // If it just transitioned from offline/null to online, and we don't have hardware data, run a scan
+        if (r.online && !backendOnline && !hardware && !detecting) {
+          handleDetect(true);
+        }
+        
+        setBackendOnline(r.online);
+      });
+    };
+
+    check(); // Initial check
+    
+    const timer = setInterval(check, 3000); // Check every 3 seconds
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [backendOnline, hardware, detecting]);
 
   // Build radar data from hardware
   const radarData = hardware ? [

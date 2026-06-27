@@ -23,12 +23,37 @@ from chatbot_service import chat as chatbot_chat
 from transcription_service import transcribe_audio
 
 # --- Configure Encoding & Logging ---
-if sys.stdout.encoding != "utf-8":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-if sys.stderr.encoding != "utf-8":
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, 'w')
+elif getattr(sys.stdout, 'encoding', None) != "utf-8":
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, 'w')
+elif getattr(sys.stderr, 'encoding', None) != "utf-8":
+    try:
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
+# Set up log file path in the executable's directory
+if getattr(sys, 'frozen', False):
+    log_dir = os.path.dirname(sys.executable)
+else:
+    log_dir = os.path.dirname(os.path.abspath(__file__))
+log_file = os.path.join(log_dir, "lapguard_agent.log")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(log_file, encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger("LaptopMDBase")
 
 # --- Flask App Setup ---
