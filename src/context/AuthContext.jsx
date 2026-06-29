@@ -54,8 +54,8 @@ export function AuthProvider({ children }) {
         });
 
         if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
+          const data = await safeJson(res);
+          if (data && data.success) {
             setUser(data.user);
           } else {
             logout();

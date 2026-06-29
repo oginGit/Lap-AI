@@ -7,7 +7,28 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = '/api/ai';
+let baseAiApi = import.meta.env.VITE_AI_API_URL || import.meta.env.VITE_AUTH_API_URL || '/api/ai';
+if (baseAiApi.startsWith('http')) {
+  try {
+    const origin = new URL(baseAiApi).origin;
+    baseAiApi = `${origin}/api/ai`;
+  } catch {
+    baseAiApi = '/api/ai';
+  }
+} else if (!baseAiApi.startsWith('/api/ai')) {
+  baseAiApi = '/api/ai';
+}
+const API_BASE = baseAiApi.replace(/\/$/, '');
+
+async function safeJson(res) {
+  const text = await res.text();
+  if (!text || !text.trim()) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
 async function callBackendChat(messages) {
   const res = await fetch(`${API_BASE}/chat`, {
@@ -16,16 +37,20 @@ async function callBackendChat(messages) {
     body: JSON.stringify({ messages }),
   });
 
-  const data = await res.json();
+  const data = await safeJson(res);
 
-  if (!res.ok || !data.success) {
-    const err = new Error(data.error || `Server error: ${res.status}`);
-    err.errorType = data.errorType || 'UNKNOWN';
+  if (!res.ok || !data || !data.success) {
+    const errMsg = data?.error || (res.status === 404
+      ? 'Backend AI service not found (HTTP 404). Please ensure VITE_AUTH_API_URL is configured in your deployment settings.'
+      : `Server error: HTTP ${res.status}`);
+    const err = new Error(errMsg);
+    err.errorType = data?.errorType || 'UNKNOWN';
     throw err;
   }
 
   return data.reply;
 }
+
 async function callBackendVision(imageFile, text = '') {
   const formData = new FormData();
   formData.append('image', imageFile);
@@ -36,11 +61,14 @@ async function callBackendVision(imageFile, text = '') {
     body: formData,
   });
 
-  const data = await res.json();
+  const data = await safeJson(res);
 
-  if (!res.ok || !data.success) {
-    const err = new Error(data.error || `Server error: ${res.status}`);
-    err.errorType = data.errorType || 'UNKNOWN';
+  if (!res.ok || !data || !data.success) {
+    const errMsg = data?.error || (res.status === 404
+      ? 'Backend AI service not found (HTTP 404). Please ensure VITE_AUTH_API_URL is configured in your deployment settings.'
+      : `Server error: HTTP ${res.status}`);
+    const err = new Error(errMsg);
+    err.errorType = data?.errorType || 'UNKNOWN';
     throw err;
   }
 
@@ -204,10 +232,10 @@ const ChatbotPage = ({ toast }) => {
         body: formData,
       });
 
-      const data = await res.json();
+      const data = await safeJson(res);
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || `Server error: ${res.status}`);
+      if (!res.ok || !data || !data.success) {
+        throw new Error(data?.error || `Server error: ${res.status}`);
       }
 
       // Update the user message to show the transcription

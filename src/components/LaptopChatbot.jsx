@@ -21,9 +21,33 @@ CORE SCOPE:
 - Restrict your support to laptop-related issues (battery, charging, power, thermals, performance, SSD/HDD storage, RAM, screen/display, keyboard, touchpad, OS, drivers, WiFi, security).
 - If the user asks something completely unrelated to laptops, reply politely: "I'd love to help, but I specialize in diagnosing and solving laptop-related technical issues. Feel free to ask me anything about your laptop!"`;
 
+// ── Determine backend AI API URL dynamically ──────────────────────────────
+let baseAiApi = import.meta.env.VITE_AI_API_URL || import.meta.env.VITE_AUTH_API_URL || '/api/ai';
+if (baseAiApi.startsWith('http')) {
+  try {
+    const origin = new URL(baseAiApi).origin;
+    baseAiApi = `${origin}/api/ai`;
+  } catch {
+    baseAiApi = '/api/ai';
+  }
+} else if (!baseAiApi.startsWith('/api/ai')) {
+  baseAiApi = '/api/ai';
+}
+const AI_API_BASE = baseAiApi.replace(/\/$/, '');
+
+async function safeJson(res) {
+  const text = await res.text();
+  if (!text || !text.trim()) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 // ── Call Backend Chat API ──────────────────────────────
 async function callBackendChat(messages) {
-  const response = await fetch('/api/ai/chat', {
+  const response = await fetch(`${AI_API_BASE}/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,9 +55,12 @@ async function callBackendChat(messages) {
     body: JSON.stringify({ messages }),
   });
 
-  const data = await response.json();
-  if (!response.ok || !data.success) {
-    throw new Error(data.error || `Server error: HTTP ${response.status}`);
+  const data = await safeJson(response);
+  if (!response.ok || !data || !data.success) {
+    const errMsg = data?.error || (response.status === 404
+      ? 'Backend AI service not found (HTTP 404). Please ensure VITE_AUTH_API_URL is configured in your deployment settings.'
+      : `Server error: HTTP ${response.status}`);
+    throw new Error(errMsg);
   }
 
   return data.reply;
@@ -146,15 +173,15 @@ What laptop issue can I help you with today?`,
       const formData = new FormData();
       formData.append('audio', audioBlob, 'audio.webm');
 
-      const res = await fetch(`/api/ai/voice`, {
+      const res = await fetch(`${AI_API_BASE}/voice`, {
         method: 'POST',
         body: formData,
       });
 
-      const data = await res.json();
+      const data = await safeJson(res);
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || `Server error: ${res.status}`);
+      if (!res.ok || !data || !data.success) {
+        throw new Error(data?.error || `Server error: ${res.status}`);
       }
 
       // Update the user message to show the transcription
@@ -417,14 +444,14 @@ What laptop issue can I help you with today?`,
         formData.append('image', imageFileToSend);
         if (text) formData.append('text', text);
 
-        const response = await fetch('/api/ai/vision', {
+        const response = await fetch(`${AI_API_BASE}/vision`, {
           method: 'POST',
           body: formData,
         });
 
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || `Server error: HTTP ${response.status}`);
+        const data = await safeJson(response);
+        if (!response.ok || !data || !data.success) {
+          throw new Error(data?.error || `Server error: HTTP ${response.status}`);
         }
         reply = data.reply;
       } else {

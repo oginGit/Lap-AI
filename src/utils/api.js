@@ -21,6 +21,16 @@ function getAuthToken() {
   return localStorage.getItem('laptopmd_token');
 }
 
+async function safeJson(res) {
+  const text = await res.text();
+  if (!text || !text.trim()) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Generic fetch wrapper with timeout and error handling
  */
@@ -40,12 +50,13 @@ async function apiFetch(endpoint, options = {}) {
 
     clearTimeout(timeout);
 
+    const data = await safeJson(res);
+
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || `API error: ${res.status}`);
+      throw new Error(data?.error || `API error: ${res.status}`);
     }
 
-    return await res.json();
+    return data || {};
   } catch (err) {
     clearTimeout(timeout);
     if (err.name === 'AbortError') {
@@ -74,12 +85,13 @@ async function agentFetch(endpoint, options = {}) {
 
     clearTimeout(timeout);
 
+    const data = await safeJson(res);
+
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || `Agent error: ${res.status}`);
+      throw new Error(data?.error || `Agent error: ${res.status}`);
     }
 
-    return await res.json();
+    return data || {};
   } catch (err) {
     clearTimeout(timeout);
     if (err.name === 'AbortError') {
